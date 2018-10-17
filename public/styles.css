@@ -1,0 +1,8 @@
+.center {
+    padding: 20px;
+}
+
+.center-logo {
+    align-items: center;
+    display: inline-flex;
+}

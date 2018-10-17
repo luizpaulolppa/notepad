@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link href="https://www.travelers.com.br/favicon.ico" rel="shortcut icon">
+    <title>Notepad TRV</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="center">
+        <div class="center-logo">
+            <img src="https://www.travelers.com.br/favicon.ico" alt="">
+            <h2>Notepad TRV</h2>
+        </div>
+        <form id="form-message">
+            <div id="success" class="alert alert-success" role="alert">
+                Documento salvo!
+            </div>
+            <textarea name="message" class="form-control" rows="30"></textarea>
+            <br>
+            <button type="submit" class="btn btn-success btn-lg btn-block">Salvar</button>
+        </form>
+    </div>
+</body>
+
+<script type="text/javascript">
+    var socket = io("http://localhost:3000");
+
+    hideSuccess();
+
+    function renderMessage(message) {
+        $("textarea[name=message]").val(message);
+    }
+
+    function save() {
+        showSuccess();
+        var message = $("textarea[name=message]").val();
+        var messageObject = { message: message || "" };
+
+        renderMessage(messageObject.message);
+        socket.emit("sendMessage", messageObject);
+
+        setTimeout(function() {
+            console.log("hideSuccess");
+            hideSuccess();
+        }, 1000);
+    }
+
+    function hideSuccess() {
+        $("#success").hide();
+    }
+
+    function showSuccess() {
+        $("#success").show();
+    }
+
+    socket.on("receivedMessage", function (message) {
+        renderMessage(message.message);
+    });
+
+    socket.on("previousMessages", function (message) {
+        renderMessage(message.message);
+
+    });
+
+    $("#form-message").submit(function (event) {
+        event.preventDefault();
+        save();
+    });
+
+    $(window).bind('keydown', function (event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+                    save();
+                    break;
+            }
+        }
+    });
+</script>
+
+</html>
